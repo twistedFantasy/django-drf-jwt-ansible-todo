@@ -1,0 +1,10 @@
+---
+- import_tasks: settings.yml
+  tags:
+    - deploy
+    - migrate
+
+- import_tasks: migrate.yml
+  tags:
+    - deploy
+    - migrate

@@ -1,0 +1,17 @@
+- name: Configure logs
+  block:
+    - name: Create log folders
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      with_items: "{{ dirs }}"
+
+    - name: Create log files
+      file:
+        path: "{{ item }}"
+        state: touch
+        owner: "{{ vbox_user if is_vbox else nginx_user }}"
+        group: "{{ vbox_group if is_vbox else nginx_group }}"
+        mode: '0755'
+      with_items: "{{ files }}"

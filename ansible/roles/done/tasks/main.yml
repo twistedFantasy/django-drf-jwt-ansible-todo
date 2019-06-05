@@ -1,0 +1,6 @@
+---
+- debug:
+    msg: "{{ success_msg }}"
+  tags:
+    - deploy
+    - ansible

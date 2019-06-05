@@ -1,0 +1,11 @@
+---
+- name: Execute migrate
+  shell: python3 manage.py migrate --noinput
+  args:
+    chdir: "{{ product_dir }}"
+  environment:
+    PYTHONPATH: "{{ pythonpath }}"
+    DJANGO_SETTINGS_MODULE: "{{ settings }}"
+  run_once: true
+  register: result
+  changed_when: not result.stdout is search('No migrations to apply')

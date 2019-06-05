@@ -1,0 +1,27 @@
+---
+- name: Install pip3 requirements.txt
+  pip:
+    chdir: "{{ item }}"
+    executable: pip3
+    requirements: requirements.txt
+  with_items: "{{ dirs }}"
+  when: dirs is defined and (pip_installed|d(False) or env == 'dev')
+  tags: deploy
+
+- name: Copy pip3 files
+  copy:
+    src: "{{ playbook_dir }}/pip/{{ item }}"
+    dest: "/var/tmp/{{ item }}"
+    owner: root
+    group: root
+    mode: 0o644
+  with_items: "{{ files }}"
+  when: files is defined
+  register: pip3_copied
+  tags: deploy
+
+- name: Install pip3 files
+  command: "pip3 install /var/tmp/{{ item }}"
+  with_items: "{{ files }}"
+  when: files is defined and pip3_copied.changed
+  tags: deploy

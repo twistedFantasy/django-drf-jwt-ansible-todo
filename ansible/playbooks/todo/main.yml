@@ -1,0 +1,31 @@
+---
+- hosts: todo
+  become: true
+
+  vars:
+    product: "todo"
+
+  vars_files:
+    - "../../group_vars/base"
+    - "../../group_vars/todo"
+
+  roles:
+    - role: logs
+      dirs:
+        - "{{ product_log_dir }}"
+        - "{{ cron_log_dir }}"
+      files:
+        - "{{ log }}"
+        - "{{ gunicorn_log }}"
+        - "{{ general_log }}"
+        - "{{ cron_log }}"
+    - role: pip
+      dirs:
+        - "{{ product_dir }}"
+    - role: ANXS.postgresql
+      when: not_prd|bool
+    - role: DavidWittman.redis
+      when: not_prd|bool
+    - role: jdauphant.nginx
+    - role: django
+    - role: done

@@ -1,0 +1,33 @@
+---
+- name: Make pip config directory
+  file:
+    path: /root/.config/pip
+    state: directory
+    owner: root
+    group: root
+    mode: 0o700
+
+- name: Configure pip
+  template:
+    src: pip.conf.j2
+    dest: /root/.config/pip/pip.conf
+    owner: root
+    group: root
+    mode: 0o644
+
+- name: Install pip and pip3
+  apt:
+    name: python-pip,python3-pip
+    state: present
+    update_cache: yes
+  register: pip_installed
+
+- name: Upgrade pip
+  pip:
+    name: "pip{{ ('==' + pip_version) if pip_version is defined else '' }}"
+    executable: "{{ item }}"
+    extra_args: --upgrade
+  with_items:
+    - pip2
+    - pip3
+  tags: deploy

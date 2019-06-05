@@ -1,0 +1,15 @@
+---
+- src: https://github.com/ANXS/postgresql
+  name: ANXS.postgresql
+  version: v1.11.1
+
+- src: https://github.com/DavidWittman/ansible-redis
+  name: DavidWittman.redis
+  version: 1.2.6
+
+- src: https://github.com/jdauphant/ansible-role-nginx
+  name: jdauphant.nginx
+  version: v2.21.2
+
+#- src: Oefenweb.ansible-supervisor
+#  version: v2.0.21

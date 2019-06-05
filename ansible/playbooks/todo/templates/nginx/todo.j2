@@ -1,0 +1,28 @@
+# {{ ansible_managed }}
+
+server {
+{% if is_cloud %}
+{% if is_prd %}
+    add_header Strict-Transport-Security 'max-age=604800';
+{% endif %}
+    if ($http_x_forwarded_proto = "http") {
+        rewrite ^(.*)$ https://$server_name$REQUEST_URI permanent;
+    }
+{% endif %}
+    listen 80;
+    add_header X-XSS-Protection '1; mode=block';
+    add_header X-Content-Type-Options nosniff;
+{% if is_cloud %}
+    listen 443 ssl;
+{% endif %}
+    server_name {{ ip_address }};
+    location = /favicon.ico { access_log off; log_not_found off; }
+
+    location {{ static_url }} {
+        root {{ product_dir }};
+    }
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:{{ gunicorn_todo_sock_path }};
+    }
+}

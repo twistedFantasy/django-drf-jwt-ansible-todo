@@ -1,0 +1,89 @@
+# dirs
+media_dir: "{{ tmp_dir }}/{{ product }}"
+
+# settings
+pythonpath: "{{ product_dir }}"
+settings: "{{ product }}.settings"
+ansible_settings_py: "{{ app_dir }}/ansible_settings.py"
+debug: "{{ not_prd }}"
+
+# logging
+log_level: DEBUG
+template_log_level: INFO
+
+# server
+base_urls:
+  dev: "http://{{ ip_address }}:{{ runserver_port|string }}"
+  stg: "https://todo-stg.{{ org_domain }}"
+  prd: "https://todo.{{ org_domain }}"
+base_url: "{{ base_urls[env] }}"
+
+# apis
+base_api_path: '/api/v1'
+base_api_url: "{{ base_url + base_api_path }}"
+
+# gunicorn
+gunicorn_todo_sock_path: "{{ sock_dir }}/{{ product }}.sock"
+gunicorn_log: "{{ product_log_dir }}/gunicorn.log"
+gunicorn_timeout: 120  # seconds
+
+# wsgi
+wsgi_path: "{{ app_dir }}/wsgi.py"
+wsgi_processes: 8
+wsgi_threads: 32
+wsgi_inactivity_timeout: 600
+
+# database
+db_engine: "django.db.backends.postgresql"
+db_host: "{{ 'localhost' if not_prd else 'rds.amazonaws.com' }}"
+db_port: "{{ postgresql_port }}"
+db_name: "{{ product }}"
+db_test_name: "test_{{ product }}"
+db_username: "{{ product }}" # NOTE: when changing this you also must manually remove (drop) the previous user from the database
+db_password: "example"
+db_username_ro: "{{ product }}-readonly" # NOTE: when changing this you also must manually remove (drop) the previous user from the database
+db_password_ro: "example"
+
+# django core
+secret_key: 'todo6q$etm3x1=gla$ze$$hw0bu-lj-z*u8c0%@1clyepbk=war+-p'
+
+# postgres
+postgresql_version: 11
+postgresql_databases:
+  - name: "{{ db_name }}"
+    owner: "{{ db_username }}"
+  - name: "{{ db_test_name }}"
+    owner: "{{ db_username }}"
+postgresql_users:
+  - name: "{{ db_username }}"
+    pass: "{{ db_password }}"
+    encrypted: yes               # denotes if the password is already encrypted, postgresql >= 10 does only accepts encrypted passwords
+postgresql_user_privileges:
+  - name: "{{ db_username }}"
+    db: "{{ db_name }}"
+    priv: "ALL"
+    role_attr_flags: "CREATEDB,CREATEROLE"
+  - name: "{{ db_username }}"
+    db: "{{ db_test_name }}"
+    priv: "ALL"
+    role_attr_flags: "CREATEDB"
+
+# redis
+redis_version: "5.0.5"
+redis_host: "{{ 'localhost' if is_dev else 'cache.amazonaws.com' }}"
+redis_port: 6379
+redis_url: "{{ redis_host }}:{{ redis_port }}"
+redis_db_id: "{{ 9 if is_prd else 1 }}"
+redis_results_db_id: "{{ redis_db_id|int + 1 }}"
+
+# cache
+cache_db_id: "{{ 5 if is_prd else 3 }}"
+cache_server: "redis://{{ redis_host }}:{{ redis_port }}/{{ cache_db_id }}"
+
+# celery
+celery_general_queue: "celery-general"
+celery_general_concurrency: 1
+general_log: "{{ product_log_dir }}/{{ celery_general_queue }}.log"
+
+# admin
+admin_url: "{{ base_url }}/admin/"

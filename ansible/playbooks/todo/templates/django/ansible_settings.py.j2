@@ -1,0 +1,163 @@
+# -*- coding: utf-8 -*-
+# {{ ansible_managed }}
+
+import datetime
+import sys
+
+# pythonpath
+for path in '{{ pythonpath }}'.split(':'):
+    if path not in sys.path:
+        sys.path.append(path)
+
+# debug
+DEBUG = {{ debug|string }}
+ENV = '{{ env }}'
+
+# hosts
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    '{{ ip_address }}',
+]
+
+# time zone
+TIME_ZONE = '{{ timezone }}'
+
+# logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'default': {
+            'format': '{{ log_format }}',
+            'datefmt': '{{ log_date_format }}',
+       },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '{{ log }}',
+            'formatter': 'default',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['file'],
+            'level': '{{ log_level }}',
+            'propagate': True
+        },
+        'django': {
+            'handlers': ['file'],
+            'level': '{{ log_level }}',
+            'propagate': True,
+        },
+        'django.template': {
+            'handlers': ['file'],
+            'level': '{{ template_log_level }}',
+            'propagate': True,
+        },
+    },
+}
+
+# dirs
+MEDIA_ROOT = '{{ media_dir }}'
+
+# redis / celery
+CELERY_DATE_FORMAT = '{{ log_date_format }}'
+CELERY_BROKER_URL = 'redis://{{ redis_url }}/{{ redis_db_id }}'
+BROKER_TRANSPORT_OPTIONS = {'socket_timeout': 300}  # 5 minutes
+CELERY_RESULT_BACKEND = 'redis://{{ redis_url }}/{{ redis_results_db_id }}'
+CELERY_TASK_RESULT_EXPIRES = 3600  # 1 hour
+CELERY_TASK_DEFAULT_EXCHANGE_TYPE = "direct"
+CELERY_TASK_DEFAULT_ROUTING_KEY = "celery"
+CELERY_TASK_DEFAULT_EXCHANGE = "celery"
+CELERY_TASK_DEFAULT_QUEUE = "{{ celery_general_queue }}"
+CELERY_TASK_QUEUES = {
+    'celery-general': {
+        'exchange': 'celery',
+        'exchange_type': 'topic',
+        "binding_key": "general.#"
+    },
+}
+CELERY_TASK_ROUTES = {
+    "todo.users.tasks.analyzer.Analyzer": {
+        "queue": "{{ celery_general_queue }}",
+        "routing_key": "general.analyzer",
+    },
+}
+CELERY_IMPORTS = [
+    "todo.users.tasks.analyzer",
+]
+
+# auth
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(seconds=1209600),  # 2 weeks
+    'AUTH_HEADER_TYPES': ('Bearer', 'JWT'),
+}
+
+# rest framework
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'rest_framework.filters.OrderingFilter',
+    ],
+    'URL_FORMAT_OVERRIDE': 'response_format',
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10
+}
+
+
+# database
+DATABASES = {
+    'default': {
+        'ENGINE': '{{ db_engine }}',
+        'NAME': '{{ db_name }}',
+        'USER': '{{ db_username }}',
+        'PASSWORD': '{{ db_password }}',
+        'HOST': '{{ db_host }}',
+        'PORT': '{{ db_port }}',
+        'TEST': {
+            'NAME': '{{ db_test_name }}',   # name to use for testrunner db
+            'CHARSET': 'utf8',
+        }
+    }
+}
+
+# django core
+SECRET_KEY = '{{ secret_key }}'
+
+# caching
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/tmp/todo/django_fs_cache'
+    }
+}
+CACHE_SERVER = '{{ cache_server }}'
+
+# email
+EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
+EMAIL_HOST = '{{ sendgrid_host }}'
+EMAIL_PORT = {{ sendgrid_port }}
+EMAIL_HOST_USER = '{{ sendgrid_username }}'
+EMAIL_HOST_PASSWORD = '{{ sendgrid_password }}'
+EMAIL_USE_TLS = {{ sendgrid_use_tls }}
+EMAIL_USE_SSL = {{ sendgrid_use_ssl }}
+DEFAULT_FROM_NAME = 'Todo'
+DEFAULT_FROM_EMAIL = '{{ sendgrid_noreply }}'
+
+# admin
+ADMIN_URL = '{{ admin_url }}'
