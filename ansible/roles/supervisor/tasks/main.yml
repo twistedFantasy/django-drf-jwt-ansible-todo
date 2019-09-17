@@ -1,0 +1,12 @@
+---
+- name: Create supervisor conf
+  template:
+    src: "templates/supervisor/{{ item }}.conf.j2"
+    dest: "/etc/supervisor/conf.d/{{ item }}.conf"
+  with_items: "{{ templates }}"
+  notify: restart supervisor
+
+- name: Always restart supervisor
+  service:
+    name: supervisord
+    state: restarted

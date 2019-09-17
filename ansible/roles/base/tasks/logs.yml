@@ -1,0 +1,9 @@
+---
+- name: Create log files
+  file:
+    path: "{{ item.file }}"
+    state: touch
+    owner: "{{ vbox_user if is_vbox else nginx_user }}"
+    group: "{{ vbox_group if is_vbox else nginx_group }}"
+    mode: '0755'
+  with_items: "{{ logs }}"

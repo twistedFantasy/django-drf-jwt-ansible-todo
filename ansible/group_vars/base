@@ -10,7 +10,7 @@ is_prd: "{{ env == 'prd' }}"
 not_prd: "{{ env != 'prd' }}"
 is_vbox: "{{ ansible_virtualization_type == 'virtualbox' }}"
 is_cloud: "{{ ansible_virtualization_type != 'virtualbox' }}"
-ip_address: "{{ ansible_all_ipv4_addresses[0] }}"  # this *public* ip gets overriden on ec2 instances to its *private* ip (see ec2.yml)
+ip_address: "{{ ansible_enp0s8.ipv4.address }}"
 envs:
   - dev
   - stg
@@ -27,24 +27,27 @@ ansible_log_dir: /var/log/ansible/hosts
 timezone: 'America/New_York'
 
 # personality
+organization: test
 org_domain: test.com
 
 # dirs
 tmp_dir: /tmp
 log_dir: /var/log
-root_dir: /var/todo
+root_dir: "/var/{{ organization }}"
 bin_dir: "{{ root_dir }}/bin"
 cache_dir: "{{ root_dir }}/cache"
 cloud_src_dir:  "{{ root_dir + '/src' }}"
 src_dir:  "{{ cloud_src_dir if is_cloud else '/vagrant_data' }}"
-auth_dir: "{{ root_dir }}/auth"
-cert_dir: "{{ auth_dir }}/cert"
 product_dir: "{{ src_dir }}/{{ product }}"
-app_dir: "{{ product_dir }}/{{ product }}"
+app_dir: "{{ product_dir }}/{{ sub_product }}"
 config_dir: "/etc/{{ product }}"
 product_log_dir: "{{ log_dir }}/{{ product }}"
-cron_log_dir: "{{ log_dir }}/cron"
 sock_dir: "/var/tmp"
+static_dir: "{{ app_dir }}/static"
+
+# gitlab
+gitlab_domain: "gitlab.test.com"
+gitlab_key: "/root/.ssh/id_rsa.gitlab"
 
 # logging
 log: "{{ product_log_dir }}/{{ product }}.log"
@@ -53,7 +56,6 @@ log_format: "%(asctime)s [%(process)d] [%(name)s:%(lineno)d] %(levelname)s: %(me
 log_date_format: "%Y-%m-%d %H:%M:%S %z"
 
 # postgres
-postgresql_python_library: "python3-psycopg2"
 postgresql_logging_collector: on
 postgresql_log_directory: /var/log/postgresql
 postgresql_log_filename: "postgresql-%Y-%m-%d_%H%M%S.log"
@@ -68,6 +70,16 @@ postgresql_log_timezone: "{{ timezone }}"
 runserver_port: 8000
 static_url: /static/
 
+# supervisor
+supervisor_version: 4.0.4
+supervisor_http_port: 9002
+supervisor_unix_http_server_chmod: 0o770
+supervisor_unix_http_server_chown: "root:{{ nginx_group }}"
+
+# system user
+system_email: "system@test.com"
+system_password: "example"
+
 # nginx
 nginx_user: www-data
 nginx_group: www-data
@@ -80,7 +92,7 @@ nginx_ssl_params:
   - ssl_prefer_server_ciphers on
 nginx_sites:
   '{{ product }}':
-    template: "nginx/{{ product }}.j2"
+    template: "nginx/{{ sub_product }}.j2"
 nginx_http_params: "{{ nginx_ssl_params + nginx_http_default_params }}"
 
 # sendgrid

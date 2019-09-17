@@ -3,29 +3,32 @@
   become: true
 
   vars:
-    product: "todo"
+    product: "django-drf-jwt-ansible-todo"
+    sub_product: "todo"
 
   vars_files:
     - "../../group_vars/base"
     - "../../group_vars/todo"
 
   roles:
-    - role: logs
-      dirs:
-        - "{{ product_log_dir }}"
-        - "{{ cron_log_dir }}"
-      files:
-        - "{{ log }}"
-        - "{{ gunicorn_log }}"
-        - "{{ general_log }}"
-        - "{{ cron_log }}"
+    - role: base
+      logs:
+        - file: "{{ log }}"
+    - role: gitlab
+      repositories:
+        - "{{ product }}"
     - role: pip
       dirs:
-        - "{{ product_dir }}"
+        - "{{ app_dir }}"
     - role: ANXS.postgresql
       when: not_prd|bool
     - role: DavidWittman.redis
       when: not_prd|bool
+    - role: geerlingguy.supervisor
     - role: jdauphant.nginx
+    - role: geerlingguy.nodejs
     - role: django
+    - role: supervisor
+      templates:
+        - "gunicorn"
     - role: done

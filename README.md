@@ -25,11 +25,11 @@ SSH to virtual machine
 ```
 Go to shared between host and virtual machine directory
 ```
-% cd /vagrant_data/
+% cd /vagrant_data/django-drf-jwt-ansible-todo
 ```
 Configure project and install all needed dependencies with ansible-playbook
 ``` 
-% cd /vagrant_data/ansible
+% cd /vagrant_data/django-drf-jwt-ansible-todo/ansible
 % ansible-playbook playbooks/todo/main.yml 
 ```
 To run playbook with selected tags
@@ -38,7 +38,7 @@ To run playbook with selected tags
 ```
 Start django development server
 ``` 
-% cd /vagrant_data/todo
+% cd /vagrant_data/django-drf-jwt-ansible-todo/todo
 % python3 manage.py runserver 0.0.0.0:8000
 ```
 Access Django admin page in browser

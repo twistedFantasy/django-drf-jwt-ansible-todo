@@ -3,13 +3,22 @@
   name: ANXS.postgresql
   version: v1.11.1
 
+- src: https://github.com/geerlingguy/ansible-role-pip
+  name: geerlingguy.pip
+  version: 1.3.0
+
 - src: https://github.com/DavidWittman/ansible-redis
   name: DavidWittman.redis
   version: 1.2.6
+
+- src: https://github.com/geerlingguy/ansible-role-supervisor
+  name: geerlingguy.supervisor
+  version: 2.0.2
 
 - src: https://github.com/jdauphant/ansible-role-nginx
   name: jdauphant.nginx
   version: v2.21.2
 
-#- src: Oefenweb.ansible-supervisor
-#  version: v2.0.21
+- src: https://github.com/geerlingguy/ansible-role-nodejs
+  name: geerlingguy.nodejs
+  version: 5.0.0

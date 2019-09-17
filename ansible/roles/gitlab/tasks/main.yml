@@ -1,0 +1,41 @@
+---
+- name: Copy gitlab private key
+  copy:
+    src: files/id_rsa.gitlab
+    dest: "{{ gitlab_key }}"
+    owner: "root"
+    group: "root"
+    mode: 0600
+  when: is_cloud
+
+- name: Create ssh config
+  template:
+    src: ssh/config.j2
+    dest: /root/.ssh/config
+    owner: root
+    group: root
+    mode: 0o600
+  when: is_cloud
+
+- name: Add git PPA
+  apt_repository:
+    repo: ppa:git-core/ppa
+    update_cache: true
+  when: is_cloud
+
+- name: Upgrade git
+  apt:
+    name: git
+    state: latest
+  when: is_cloud
+
+- name: Clone gitlab repos
+  git:
+    repo: "git@{{ gitlab_domain }}:{{ organization }}/{{ item }}.git"
+    version: "{{ git_ref|default(default_git_ref) }}"
+    dest: "{{ src_dir }}/{{ item }}"
+    key_file: "{{ gitlab_key }}"
+    accept_hostkey: yes
+    clone: yes
+  with_items: "{{ repositories }}"
+  when: is_cloud

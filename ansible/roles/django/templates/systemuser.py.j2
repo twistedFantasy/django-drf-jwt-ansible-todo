@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+
+import django
+django.setup()
+from django.db import transaction
+from {{ sub_product }}.users.models import User
+
+with transaction.atomic():
+    User.objects.filter(email='{{ system_email }}').delete()
+    User.objects.create_superuser('{{ system_email }}', '{{ system_password }}')

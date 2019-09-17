@@ -4,8 +4,8 @@
 command=/usr/local/bin/gunicorn --timeout {{ gunicorn_timeout }} --workers 3 --bind unix:{{ gunicorn_todo_sock_path }} todo.wsgi:application
 directory={{ product_dir }}
 environment=DJANGO_SETTINGS_MODULE={{ settings }},PYTHONPATH={{ pythonpath }},LANG=en_US.UTF-8,LC_ALL=en_US.UTF-8
-user={{ nginx_user }}
-group={{ nginx_group }}
+user={{ nginx_user if is_cloud else vbox_user }}
+group={{ nginx_group if is_cloud else vbox_group }}
 startsecs=10
 startretries=30
 redirect_stderr=true

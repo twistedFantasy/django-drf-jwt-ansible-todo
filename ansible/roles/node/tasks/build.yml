@@ -1,0 +1,5 @@
+- name: Build code for production
+  shell: "npm run build:{{ git_ref }}"
+  args:
+    chdir: "{{ product_dir }}/frontend"
+  when: is_cloud

@@ -1,0 +1,6 @@
+---
+- name: Collect all Django static files in the static folder.
+  shell: python3 manage.py collectstatic --noinput
+  args:
+    chdir: "{{ app_dir }}"
+  when: not_dev

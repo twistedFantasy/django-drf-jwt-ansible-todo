@@ -1,10 +1,14 @@
 # dirs
+frontend_dir: "{{ product_dir }}/frontend"
+frontend_build_dir: "{{ frontend_dir }}/build"
+frontend_static_dir: "{{ frontend_build_dir }}/static"
+frontend_index_path: "{{ frontend_build_dir }}/index.html"
 media_dir: "{{ tmp_dir }}/{{ product }}"
 
 # settings
-pythonpath: "{{ product_dir }}"
-settings: "{{ product }}.settings"
-ansible_settings_py: "{{ app_dir }}/ansible_settings.py"
+pythonpath: "{{ app_dir }}"
+settings: "{{ sub_product }}.settings"
+ansible_settings_py: "{{ app_dir }}/{{ sub_product }}/ansible_settings.py"
 debug: "{{ not_prd }}"
 
 # logging
@@ -21,17 +25,6 @@ base_url: "{{ base_urls[env] }}"
 # apis
 base_api_path: '/api/v1'
 base_api_url: "{{ base_url + base_api_path }}"
-
-# gunicorn
-gunicorn_todo_sock_path: "{{ sock_dir }}/{{ product }}.sock"
-gunicorn_log: "{{ product_log_dir }}/gunicorn.log"
-gunicorn_timeout: 120  # seconds
-
-# wsgi
-wsgi_path: "{{ app_dir }}/wsgi.py"
-wsgi_processes: 8
-wsgi_threads: 32
-wsgi_inactivity_timeout: 600
 
 # database
 db_engine: "django.db.backends.postgresql"
@@ -67,6 +60,20 @@ postgresql_user_privileges:
     db: "{{ db_test_name }}"
     priv: "ALL"
     role_attr_flags: "CREATEDB"
+postgresql_pg_hba_default:
+  - { type: local,  database: "{{ db_name }}", user: "{{ db_username }}", address: "", method: "md5"}
+  - { type: local,  database: "{{ db_test_name }}", user: "{{ db_username }}", address: "", method: "md5"}
+  - { type: local,  database: "{{ db_name }}", user: "{{ db_username }}", address: "", method: "md5"}
+  - { type: local,  database: "{{ db_test_name }}", user: "{{ db_username_ro }}", address: "", method: "md5"}
+  - { type: local, database: all, user: all, address: "",             method: "{{ postgresql_default_auth_method }}", comment: '"local" is for Unix domain socket connections only' }
+  - { type: host,  database: all, user: all, address: "127.0.0.1/32", method: "{{ postgresql_default_auth_method_hosts }}", comment: "IPv4 local connections:" }
+  - { type: host,  database: all, user: all, address: "::1/128",      method: "{{ postgresql_default_auth_method_hosts }}", comment: "IPv6 local connections:" }
+  - { type: local, database: all, user: "{{ postgresql_admin_user }}", address: "", method: "peer map=root_as_{{ postgresql_admin_user }}", comment: "Local root Unix user, passwordless access" }
+
+# gunicorn
+gunicorn_todo_sock_path: "{{ sock_dir }}/{{ product }}.sock"
+gunicorn_log: "{{ product_log_dir }}/gunicorn.log"
+gunicorn_timeout: 120  # seconds
 
 # redis
 redis_version: "5.0.5"

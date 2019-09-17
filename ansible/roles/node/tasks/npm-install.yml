@@ -1,0 +1,4 @@
+- name: Install dependencies from package.json
+  shell: "{{ 'npm ci' if is_cloud else 'npm install' }}"
+  args:
+    chdir: "{{ product_dir }}/frontend"

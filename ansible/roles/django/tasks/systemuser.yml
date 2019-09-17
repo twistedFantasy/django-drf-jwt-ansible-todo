@@ -1,0 +1,15 @@
+---
+- name: Create systemuser script
+  template:
+    src: systemuser.py.j2
+    dest: "{{ bin_dir }}/systemuser.py"
+    mode: 0640
+  register: systemuser
+
+- name: Create or update systemuser
+  shell: python3 {{ bin_dir }}/systemuser.py
+  environment:
+    PYTHONPATH: "{{ pythonpath }}"
+    DJANGO_SETTINGS_MODULE: "{{ settings }}"
+  run_once: true
+  when: systemuser.changed

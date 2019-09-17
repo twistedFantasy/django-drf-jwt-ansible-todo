@@ -1,0 +1,3 @@
+---
+- import_tasks: npm-install.yml
+- import_tasks: build.yml

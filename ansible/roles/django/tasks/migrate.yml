@@ -2,7 +2,7 @@
 - name: Execute migrate
   shell: python3 manage.py migrate --noinput
   args:
-    chdir: "{{ product_dir }}"
+    chdir: "{{ app_dir }}"
   environment:
     PYTHONPATH: "{{ pythonpath }}"
     DJANGO_SETTINGS_MODULE: "{{ settings }}"

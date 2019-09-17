@@ -1,3 +1,4 @@
 ---
 dependencies:
-  - role: pip-base
+  - role: geerlingguy.pip
+    pip_package: 'python3-pip'
