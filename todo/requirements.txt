@@ -7,7 +7,7 @@ flower==0.9.3
 pydevd-pycharm~=191.7479.30
 
 # django
-django==2.2.4
+django==2.2.21
 django-cors-headers==3.0.2
 django-celery-email==2.0.2
 django-model-utils==3.2.0
