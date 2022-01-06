@@ -1,5 +1,5 @@
 # common
-celery==4.3.0
+celery==5.2.2
 psycopg2-binary==2.8.3
 redis==3.3.5
 gunicorn==19.9.0
